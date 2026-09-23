@@ -20,6 +20,10 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "host": "lan",
+    "developmentClient": {
+      "host": "lan"
     }
   }
 }
