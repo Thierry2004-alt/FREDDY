@@ -20,8 +20,11 @@ const getHostIP = () => {
     // fallback
   }
 
-  // LAN IP of development host for physical devices & emulators
-  return '10.155.242.130';
+  if (Platform.OS === 'android' || Platform.OS === 'ios') {
+    return '10.155.242.130';
+  }
+
+  return 'localhost';
 };
 
 const getBaseUrl = () => {
@@ -77,12 +80,18 @@ export const orderAPI = {
   list: () => api.get('/orders/orders/'),
   create: (data: any) => api.post('/orders/orders/', data),
   cancel: (id: number) => api.post(`/orders/orders/${id}/cancel/`),
-  confirm: (id: number) => api.post(`/orders/orders/${id}/confirm/`),
+  confirm: (id: number, payload?: { delivery_agent_id?: number }) => api.post(`/orders/orders/${id}/confirm/`, payload || {}),
+  assignTransporter: (id: number, payload: { delivery_agent_id: number }) => api.post(`/orders/orders/${id}/confirm/`, payload),
 };
 
 export const deliveryAPI = {
   list: () => api.get('/delivery/deliveries/'),
   updateStatus: (id: number, data: any) => api.post(`/delivery/deliveries/${id}/update_status/`, data),
+  transporters: () => api.get('/auth/users/', { params: { role: 'delivery' } }),
+};
+
+export const transporterAPI = {
+  list: () => deliveryAPI.transporters(),
 };
 
 export const paymentAPI = {

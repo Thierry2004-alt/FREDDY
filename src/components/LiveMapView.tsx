@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Linking, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Colors, BorderRadius, Shadows } from '../theme/theme';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const MAP_HEIGHT = 220;
 
 export interface RouteCoordinates {
   originName: string;
@@ -31,10 +29,25 @@ export const LiveMapView: React.FC<LiveMapViewProps> = ({ route, currentAgentCoo
   const truck = currentAgentCoords || { lat: (origin.lat + destination.lat) / 2, lng: (origin.lng + destination.lng) / 2 };
 
   const region = {
-    latitude: (origin.latitude + destination.latitude) / 2,
-    longitude: (origin.longitude + destination.longitude) / 2,
-    latitudeDelta: Math.abs(origin.latitude - destination.latitude) * 1.6 || 2.5,
-    longitudeDelta: Math.abs(origin.longitude - destination.longitude) * 1.6 || 2.5,
+    latitude: (origin.lat + destination.lat) / 2,
+    longitude: (origin.lng + destination.lng) / 2,
+    latitudeDelta: Math.abs(origin.lat - destination.lat) * 1.6 || 2.5,
+    longitudeDelta: Math.abs(origin.lng - destination.lng) * 1.6 || 2.5,
+  };
+
+  const openExternalMap = async () => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}&travelmode=driving`;
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        await Linking.openURL(`https://maps.google.com/?q=${destination.lat},${destination.lng}`);
+      }
+    } catch (err) {
+      Alert.alert('Navigation', 'Opening Google Maps route...');
+      Linking.openURL(url);
+    }
   };
 
   return (
@@ -50,31 +63,32 @@ export const LiveMapView: React.FC<LiveMapViewProps> = ({ route, currentAgentCoo
         loadingEnabled
         liteMode
       >
-        <Marker coordinate={{ latitude: origin.latitude, longitude: origin.longitude }} title={route.originName} description="Origin" />
-        <Marker coordinate={{ latitude: destination.latitude, longitude: destination.longitude }} title={route.destName} description="Destination" />
-        <Marker coordinate={{ latitude: truck.latitude, longitude: truck.longitude }} title={route.vehiclePlate || 'Truck'} description="Transporter" />
+        <Marker coordinate={{ latitude: origin.lat, longitude: origin.lng }} title={route.originName} description="Origin" />
+        <Marker coordinate={{ latitude: destination.lat, longitude: destination.lng }} title={route.destName} description="Destination" />
+        <Marker coordinate={{ latitude: truck.lat, longitude: truck.lng }} title={route.vehiclePlate || 'Truck'} description="Transporter" />
         <Polyline
           coordinates={[
-            { latitude: origin.latitude, longitude: origin.longitude },
-            { latitude: truck.latitude, longitude: truck.longitude },
-            { latitude: destination.latitude, longitude: destination.longitude },
+            { latitude: origin.lat, longitude: origin.lng },
+            { latitude: truck.lat, longitude: truck.lng },
+            { latitude: destination.lat, longitude: destination.lng },
           ]}
           strokeColor={Colors.primary}
           strokeWidth={3}
         />
       </MapView>
 
-      <View style={styles.mapOverlayBadge}>
+      <TouchableOpacity style={styles.mapOverlayBadge} onPress={openExternalMap} activeOpacity={0.85}>
+        <Ionicons name="map-outline" size={12} color="#A7F3D0" />
         <Text style={styles.mapOverlayTitle}>LIVE TRACKING</Text>
         <Text style={styles.mapOverlaySub}>{route.distanceKm} km • ~{route.durationEst}</Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: MAP_HEIGHT,
+    height: 220,
     borderRadius: BorderRadius.xl,
     overflow: 'hidden',
     marginHorizontal: 16,

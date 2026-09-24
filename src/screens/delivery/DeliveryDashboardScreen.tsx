@@ -151,6 +151,22 @@ export default function DeliveryDashboardScreen() {
     Alert.alert('Statut Mis à Jour', `L'expédition #${deliveryId} est désormais : ${status.toUpperCase()}`);
   };
 
+  const handleMarkComplete = async (deliveryId: number) => {
+    Alert.alert(
+      'Confirmer la Livraison',
+      'Marquer cette livraison comme terminée ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Confirmer',
+          onPress: async () => {
+            await updateStatus(deliveryId, 'delivered');
+          },
+        },
+      ]
+    );
+  };
+
   const handleCallBuyer = (phone: string) => {
     const cleanNumber = phone.replace(/\s+/g, '');
     Linking.openURL(`tel:${cleanNumber}`).catch(() => {
@@ -258,6 +274,17 @@ export default function DeliveryDashboardScreen() {
                   <Ionicons name="logo-whatsapp" size={16} color="#16A34A" />
                   <Text style={styles.whatsappBuyerText}>WhatsApp</Text>
                 </TouchableOpacity>
+
+                {item.status !== 'delivered' && (
+                  <TouchableOpacity
+                    style={styles.completeBtn}
+                    onPress={() => handleMarkComplete(item.id)}
+                    activeOpacity={0.8}
+                  >
+                    <Ionicons name="checkmark-done-circle-outline" size={16} color={Colors.textWhite} />
+                    <Text style={styles.completeBtnText}>Marquer Livré</Text>
+                  </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   style={styles.statusUpdateBtn}
@@ -404,6 +431,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#166534',
+  },
+  completeBtn: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#059669',
+    paddingVertical: 11,
+    borderRadius: BorderRadius.md,
+    gap: 6,
+    marginTop: 4,
+  },
+  completeBtnText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: Colors.textWhite,
   },
   statusUpdateBtn: {
     width: '100%',

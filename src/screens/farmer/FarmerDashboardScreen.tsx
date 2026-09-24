@@ -89,26 +89,32 @@ export default function FarmerDashboardScreen({ navigation }: any) {
 
   const handleAcceptOrder = async (orderId: number) => {
     Alert.alert(
-      'Confirmer & Conditionner la Récolte',
-      `Confirmer la commande #${orderId} ? Le transporteur sera notifié pour l'enlèvement au champ.`,
+      'Assigner un Transporteur',
+      `Voulez-vous confirmer la commande #${orderId} et assigner un transporteur ?`,
       [
         { text: 'Annuler', style: 'cancel' },
         {
-          text: 'Confirmer la Commande',
-          onPress: async () => {
-            try {
-              await orderAPI.confirm(orderId);
-              loadData();
-              Alert.alert('Récolte Confirmée !', 'Le transporteur a été mandaté pour le ramassage.');
-            } catch (err) {
-              setOrders((prev) =>
-                prev.map((o) => (o.id === orderId ? { ...o, status: 'confirmed' } : o))
-              );
-            }
+          text: 'Confirmer',
+          onPress: () => {
+            const target = navigation.getParent?.() || navigation;
+            target.navigate('SelectTransporter', {
+              order: { id: orderId },
+              onSelect: handleTransporterSelected,
+            });
           },
         },
       ]
     );
+  };
+
+  const handleTransporterSelected = async ({ orderId, delivery_agent_id }: { orderId: number; delivery_agent_id: number }) => {
+    try {
+      await orderAPI.assignTransporter(orderId, { delivery_agent_id });
+      loadData();
+      Alert.alert('Transporteur Assigné !', 'Le transporteur sélectionné a été notifié.');
+    } catch (err) {
+      Alert.alert('Erreur', "Impossible d'assigner le transporteur.");
+    }
   };
 
   return (

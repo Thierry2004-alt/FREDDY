@@ -50,9 +50,11 @@ export default function BuyerBrowseScreen({ navigation }: any) {
   };
 
   const handleOrderSuccess = (newOrder: any) => {
+    const orderId = newOrder?.id ?? newOrder?.order_id ?? '—';
+    const total = Number(newOrder?.total_price ?? newOrder?.total ?? 0);
     Alert.alert(
-      'Commande Transmise !',
-      `Votre commande #${newOrder.id} (${Number(newOrder.total || newOrder.total_price || 0).toLocaleString()} FCFA) est enregistrée et transmise au producteur.`,
+      '✅ Commande Transmise !',
+      `Votre commande #${orderId} (${total.toLocaleString()} FCFA) est enregistrée et transmise au producteur.`,
       [
         { text: 'Continuer' },
         {

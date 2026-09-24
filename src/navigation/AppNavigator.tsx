@@ -10,6 +10,7 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 import FarmerDashboardScreen from '../screens/farmer/FarmerDashboardScreen';
 import FarmerProduceScreen from '../screens/farmer/FarmerProduceScreen';
 import AddProduceScreen from '../screens/farmer/AddProduceScreen';
+import SelectTransporterScreen from '../screens/farmer/SelectTransporterScreen';
 import BuyerDashboardScreen from '../screens/buyer/BuyerDashboardScreen';
 import BuyerBrowseScreen from '../screens/buyer/BuyerBrowseScreen';
 import DeliveryDashboardScreen from '../screens/delivery/DeliveryDashboardScreen';
@@ -147,14 +148,8 @@ export const AppNavigator = () => {
     return (
       <Stack.Navigator screenOptions={commonStackOptions}>
         <Stack.Screen name="FarmerTabs" component={FarmerTabs} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="AddProduce"
-          component={AddProduceScreen}
-          options={{
-            title: 'Ajouter un Produit',
-            headerBackTitle: 'Annuler',
-          }}
-        />
+        <Stack.Screen name="AddProduce" component={AddProduceScreen} options={{ title: 'Ajouter un Produit', headerBackTitle: 'Annuler' }} />
+        <Stack.Screen name="SelectTransporter" component={SelectTransporterScreen} options={{ title: 'Choisir un Transporteur', headerBackTitle: 'Retour' }} />
       </Stack.Navigator>
     );
   }
